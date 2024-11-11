@@ -1,5 +1,7 @@
 from app.data.database import create_connection
 
+
+
 def get_foods():
     connection = create_connection()
     cursor = connection.cursor()
@@ -19,6 +21,8 @@ def get_foods():
         }
         food_dicts.append(food_dict)
     return food_dicts
+
+
 
 def get_food_by_name(name):
     connection = create_connection()
@@ -41,6 +45,8 @@ def get_food_by_name(name):
         }
         return food_dict
 
+
+
 def create_food(food: dict):
     connection = create_connection()
     cursor = connection.cursor()
@@ -58,6 +64,8 @@ def create_food(food: dict):
     cursor.close()
     connection.close()
 
+
+
 def delete_food(name):
     if not find_food(name):
         return False
@@ -70,6 +78,8 @@ def delete_food(name):
     cursor.close()
     connection.close()
     return True
+
+
 
 def update_food(name, updated_food):
     connection = create_connection()
@@ -90,6 +100,8 @@ def update_food(name, updated_food):
     cursor.close()
     connection.close()
 
+
+
 def find_food(name):
     connection = create_connection()
     cursor = connection.cursor()
@@ -109,6 +121,8 @@ def find_food(name):
             'rating': food[4]
         }
         return food_dict
+
+
 
 def find_foods_by_partial_name(name):
     connection = create_connection()

@@ -8,14 +8,23 @@ from ..data import get_foods, get_food_by_name, create_food, update_food, delete
 from ..fsm import FoodCreateUpdateForm, FoodDeleteForm, FoodFindForm, FoodUpdateForm
 from ..keyboards import build_menu_keyboard, build_details_keyboard
 
+
+
+
 food_router = Router()
+
+
 
 async def check_admin_mode(state: FSMContext):
     data = await state.get_data()
     return data.get("admin_mode", False)
 
+
+
 async def reset_admin_mode(state: FSMContext):
     await state.update_data(admin_mode=False)
+
+
 
 @food_router.message(Command("menu"))
 @food_router.message(F.text.casefold().contains("menu"))
@@ -35,6 +44,8 @@ async def show_foods_command(message: Message, state: FSMContext):
             reply_markup=keyboard
         )
 
+
+
 @food_router.callback_query(F.data.startswith("food_"))
 async def show_food_details(callback: CallbackQuery, state: FSMContext) -> None:
     await check_commands(callback.message, state)
@@ -50,11 +61,15 @@ async def show_food_details(callback: CallbackQuery, state: FSMContext) -> None:
         build_details_keyboard()
     )
 
+
+
 async def edit_or_answer(message: Message, text: str, keyboard, **kwargs):
     if message.from_user.is_bot:
         await message.edit_text(text=text, reply_markup=keyboard, **kwargs)
     else:
         await message.answer(text=text, reply_markup=keyboard, **kwargs)
+
+
 
 @food_router.message(Command("create_food"))
 @food_router.message(F.text.casefold() == "create food")
@@ -73,6 +88,8 @@ async def create_food_command(message: Message, state: FSMContext) -> None:
         ReplyKeyboardRemove()
     )
 
+
+
 @food_router.message(Command("update_food"))
 @food_router.message(F.text.casefold() == "update food")
 async def update_food_command(message: Message, state: FSMContext) -> None:
@@ -88,6 +105,8 @@ async def update_food_command(message: Message, state: FSMContext) -> None:
         "Input name of food to update",
         reply_markup=ReplyKeyboardRemove()
     )
+
+
 
 @food_router.message(FoodUpdateForm.name)
 async def check_food_name(message: Message, state: FSMContext) -> None:
@@ -107,6 +126,8 @@ async def check_food_name(message: Message, state: FSMContext) -> None:
         )
         await state.clear()
 
+
+
 @food_router.message(Command("delete_food"))
 @food_router.message(F.text.casefold() == "delete food")
 async def delete_food_command(message: Message, state: FSMContext) -> None:
@@ -123,6 +144,8 @@ async def delete_food_command(message: Message, state: FSMContext) -> None:
         "Enter name or type 'back' to cancel",
         ReplyKeyboardRemove()
     )
+
+
 
 @food_router.message(FoodDeleteForm.name)
 async def process_delete_food(message: Message, state: FSMContext) -> None:
@@ -146,6 +169,8 @@ async def process_delete_food(message: Message, state: FSMContext) -> None:
         )
     return await show_foods_command(message, state)
 
+
+
 @food_router.message(FoodCreateUpdateForm.name)
 async def process_name(message: Message, state: FSMContext) -> None:
     await state.update_data(name=message.text)
@@ -156,6 +181,7 @@ async def process_name(message: Message, state: FSMContext) -> None:
         ReplyKeyboardRemove()
     )
 
+
 @food_router.message(FoodCreateUpdateForm.ingredients)
 async def process_ingredients(message: Message, state: FSMContext) -> None:
     data = await state.update_data(ingredients=message.text)
@@ -165,6 +191,7 @@ async def process_ingredients(message: Message, state: FSMContext) -> None:
         f"Enter photo URL of {hbold(data.get('name'))}",
         ReplyKeyboardRemove()
     )
+
 
 @food_router.message(FoodCreateUpdateForm.photo_url)
 @food_router.message(F.photo)
@@ -179,6 +206,7 @@ async def process_photo_url(message: Message, state: FSMContext) -> None:
         "Rating 1 to 10",
         ReplyKeyboardRemove()
     )
+
 
 @food_router.message(FoodCreateUpdateForm.rating)
 async def process_rating(message: Message, state: FSMContext) -> None:
@@ -216,6 +244,8 @@ async def process_rating(message: Message, state: FSMContext) -> None:
     else:
         await message.answer("Food not found. Database ERROR")
 
+
+
 @food_router.message(Command("find_food"))
 @food_router.message(F.text.casefold() == "find food")
 async def find_food_command(message: Message, state: FSMContext) -> None:
@@ -229,6 +259,7 @@ async def find_food_command(message: Message, state: FSMContext) -> None:
         "Enter name or part of the name",
         ReplyKeyboardRemove()
     )
+
 
 @food_router.message(FoodFindForm.name)
 async def process_find_food(message: Message, state: FSMContext) -> None:
@@ -255,9 +286,13 @@ async def process_find_food(message: Message, state: FSMContext) -> None:
             reply_markup=keyboard
         )
 
+
+
 @food_router.callback_query(F.data == 'back')
 async def back_handler(callback: CallbackQuery, state) -> None:
     return await show_foods_command(callback.message, state)
+
+
 
 async def check_commands(message: Message, state: FSMContext):
     action = (await state.get_data()).get('action')
@@ -267,6 +302,8 @@ async def check_commands(message: Message, state: FSMContext):
             text=f"Action {hbold(action)} canceled",
             reply_markup=ReplyKeyboardRemove()
         )
+
+
 
 @food_router.message(Command("pass_admin"))
 async def pass_admin_command(message: Message, state: FSMContext) -> None:
